@@ -40,22 +40,39 @@ def getUnassignedVariables(csp):
     return DEFAULT_VAR_DOMAINS.keys() - csp["state"].keys()
 
 
-def chooseVariable(csp):
-    # find most constrained variables (return array with corresponding constraint values)
-    # if there is a tie between top variables:
+def selectVariable(csp):
+    unassigned_variables = getUnassignedVariables(csp)
+
+    mcv = getMostConstrainedVariable(csp, unassigned_variables)
+    if len(mcv) > 1:  # tie between values
+        print(mcv)
         # find most constraining variable (return array with corresponding constraining values)
+        mcv = getMostConstrainingVariable(csp, mcv)
         # if there is a tie, sort alphabetically, choose first
-    return  # variable chosen
+    return mcv  # variable chosen
 
 
-def chooseValue(csp, v):
-    # find least constraining value for variable v # if forward checking enabled, make sure to choose from that list
-    # if tie exists between values:
-        # choose smaller value
-    return  # value chosen (if none available, return null)
+def getMostConstrainedVariable(csp, var_choices):
+    num_constraints = 9999
+    mcv = []  # array in case they tie
+    # loop through choices
+    for var in var_choices:
+        curr_domain_len = len(csp["variable_domains"][var])
+
+        # if number of constraints for var is less than previous min
+        if curr_domain_len < num_constraints:
+            num_constraints = curr_domain_len
+            # clear the array and add this variable as the mcv
+            mcv = []
+            mcv.append(var)
+        # if there is a tie
+        elif curr_domain_len == num_constraints:
+            mcv.append(var)
+
+    return mcv
 
 
-def mostConstrainingVariable(csp):
+def getMostConstrainingVariable(csp, var_choices):
     unassigned_variables = list(
         {var for var in csp["state"] if csp["state"][var]})
     mcv = None
@@ -73,28 +90,20 @@ def mostConstrainingVariable(csp):
     return mcv
 
 
-def mostConstrainedVariable(csp):
-    # variables = csp.variables
-    # unassigned_variables = [var for var in variables if not csp.is_assigned(var)]
-    # most_constrained_variable = None
-    # smallest_domain_size = float('inf')
-
-    # for var in unassigned_variables:
-        # domain_size = csp.domain_size(var)
-        # if domain_size < smallest_domain_size:
-            # smallest_domain_size = domain_size
-            # most_constrained_variable = var
-
-    return  # most_constrained_variable
-
-
 def breakTieAlphabetically(csp):
     # if 2 variables have the same constrained and constraining level
         # choose variable that appears first alphabetically
     return  # variable chosen
 
 
-def leastConstrainedValue(variable, domain):
+def selectValue(csp, v):
+    # find least constraining value for variable v # if forward checking enabled, make sure to choose from that list
+    # if tie exists between values:
+        # choose smaller value
+    return  # value chosen (if none available, return null)
+
+
+def getLeastConstrainedValue(variable, domain):
     # Sort values in domain by their number of constraints
     # values = domain[variable]
     # sorted_values = sortByConstraints(variable, values)
@@ -173,9 +182,9 @@ def checkComplete(csp):  # return true if no constraints violated, and all varia
 
 def outputCurrentBranch(csp, complete):
     output_str = ""
-    unassigned_variables = getUnassignedVariables(csp)
-    num_assigned_variables = len(
-        csp["state"].items()) - len(unassigned_variables)
+    total_variable_cnt = len(DEFAULT_VAR_DOMAINS.keys())
+    unassigned_variable_cnt = len(getUnassignedVariables(csp))
+    assigned_variable_cnt = total_variable_cnt - unassigned_variable_cnt
     cnt = 0
 
     # loop through current state
@@ -184,7 +193,7 @@ def outputCurrentBranch(csp, complete):
             output_str += f"{var}={val}"
 
             # if not last item
-            if(cnt < num_assigned_variables - 1):
+            if(cnt < assigned_variable_cnt - 1):
                 output_str += ", "
             else:
                 output_str += "\tsolution" if (complete) else "\tfailure"
@@ -199,10 +208,15 @@ def outputCurrentBranch(csp, complete):
 
 def solveCSP(csp):
     complete = checkComplete(csp)
-    # if assignment is complete: # if no constraints violated, and all
-    #     return assignment
+    if complete:
+        # TODO: remove
+        print("COMPLETED!")
+        return
 
     # var <- Select-Unassigned-Variable(assignment, constraints)
+    # note, we'll need to update domain accordingly after choice
+    var = selectVariable(csp)
+
     # for value in Order-Domain-Values(var, assignment, constraints):
     #     if value satisfies constraints with assignment:
     #         assignment[var] <- value
@@ -231,10 +245,11 @@ DEFAULT_VAR_DOMAINS = csp["variable_domains"]
 
 # print(csp)
 # print(isForwardChecking)
-csp["state"]["Z"] = 1
-csp["state"]["X"] = 0
+# csp["state"]["Z"] = 1
+# csp["state"]["X"] = 0
 # csp["state"]["Y"] = 0
 
-outputCurrentBranch(csp, False)
-print(f"Violations: {checkConstraintViolations(csp)}")
-print(f"Complete: {checkComplete(csp)}")
+# outputCurrentBranch(csp, False)
+# print(f"Violations: {checkConstraintViolations(csp)}")
+# print(f"Complete: {checkComplete(csp)}")
+print(selectVariable(csp))
