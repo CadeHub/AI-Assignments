@@ -45,11 +45,15 @@ def selectVariable(csp):
 
     mcv = getMostConstrainedVariable(csp, unassigned_variables)
     if len(mcv) > 1:  # tie between values
-        print(mcv)
+        print(f"most constrained h: {mcv}")
         # find most constraining variable (return array with corresponding constraining values)
         mcv = getMostConstrainingVariable(csp, mcv)
+        print(f"most constraining h: {mcv}")
+
         # if there is a tie, sort alphabetically, choose first
-    return mcv  # variable chosen
+        if len(mcv) > 1:
+            mcv.sort()
+    return mcv[0]  # variable chosen
 
 
 def getMostConstrainedVariable(csp, var_choices):
@@ -73,27 +77,23 @@ def getMostConstrainedVariable(csp, var_choices):
 
 
 def getMostConstrainingVariable(csp, var_choices):
-    unassigned_variables = list(
-        {var for var in csp["state"] if csp["state"][var]})
-    mcv = None
+    mcv = []
     max_constraints = -1
 
-    # for variable in unassigned_variables:
-    # num_constraints = 0
-    # for constraint in csp.constraints:
-    # if variable in constraint.scope and all(v in assignment for v in constraint.scope):
-    # num_constraints += 1
-    # if num_constraints > max_constraints:
-    # mcv = variable
-    # max_constraints = num_constraints
+    for var in var_choices:
+        num_constraints = 0
+        for constraint in csp["constraints"]:
+            if var in constraint.values():
+                num_constraints += 1
+
+        if num_constraints > max_constraints:
+            mcv = []
+            mcv.append(var)
+            max_constraints = num_constraints
+        elif num_constraints == max_constraints:
+            mcv.append(var)
 
     return mcv
-
-
-def breakTieAlphabetically(csp):
-    # if 2 variables have the same constrained and constraining level
-        # choose variable that appears first alphabetically
-    return  # variable chosen
 
 
 def selectValue(csp, v):
@@ -234,22 +234,23 @@ def solveCSP(csp):
 
 
 ''' Main Code: '''
-variable_file = sys.argv[1]
-constraint_file = sys.argv[2]
-isForwardChecking = True if (len(sys.argv) == "fc") else False
+if __name__ == "__main__":
+    variable_file = sys.argv[1]
+    constraint_file = sys.argv[2]
+    isForwardChecking = True if (len(sys.argv) == "fc") else False
 
-readInputFile(variable_file, processVariablesFile)
-readInputFile(constraint_file, processConstraintFile)
-# the domains will be modified if using forward checking, we'll need to reset the domains on backtrack
-DEFAULT_VAR_DOMAINS = csp["variable_domains"]
+    readInputFile(variable_file, processVariablesFile)
+    readInputFile(constraint_file, processConstraintFile)
+    # the domains will be modified if using forward checking, we'll need to reset the domains on backtrack
+    DEFAULT_VAR_DOMAINS = csp["variable_domains"]
 
-# print(csp)
-# print(isForwardChecking)
-# csp["state"]["Z"] = 1
-# csp["state"]["X"] = 0
-# csp["state"]["Y"] = 0
+    # print(csp)
+    # print(isForwardChecking)
+    # csp["state"]["Z"] = 1
+    # csp["state"]["X"] = 0
+    # csp["state"]["Y"] = 0
 
-# outputCurrentBranch(csp, False)
-# print(f"Violations: {checkConstraintViolations(csp)}")
-# print(f"Complete: {checkComplete(csp)}")
-print(selectVariable(csp))
+    # outputCurrentBranch(csp, False)
+    # print(f"Violations: {checkConstraintViolations(csp)}")
+    # print(f"Complete: {checkComplete(csp)}")
+    # print(selectVariable(csp))
