@@ -37,11 +37,7 @@ def processConstraintFile(line: str):
 
 
 def getUnassignedVariables(csp):
-    unassigned_variables = []
-    for var, val in csp["state"].items():
-        if val == None:
-            unassigned_variables.append(var)
-    return unassigned_variables
+    return DEFAULT_VAR_DOMAINS.keys() - csp["state"].keys()
 
 
 def chooseVariable(csp):
@@ -135,7 +131,11 @@ def checkConstraintViolation(constraint, state):
     # if one of the values is unassigned, return false
     if (var1 not in state.keys()) or (var2 not in state.keys()):
         return False
-    elif operation == "<":
+    else:
+        var1 = state[var1]
+        var2 = state[var2]
+
+    if operation == "<":
         violated = var1 < var2
     elif operation == ">":
         violated = var1 > var2
@@ -149,22 +149,23 @@ def checkConstraintViolation(constraint, state):
     return not violated
 
 
-def checkConstraintViolations(csp, var):
+def checkConstraintViolations(csp):
     violated = False
 
     # loop through csp constraints that involve var (we only bother checking most recently assigned variable, assuming previous set values are valid)
-    for constraint in csp["constraints"]:
-        # if current variable is a part of the constraint we're looking at
-        if constraint["VAR1"] == var or constraint["VAR2"] == var:
-            # check for violation
-            violated = checkConstraintViolation(constraint, csp["state"])
+    for var in csp["state"].keys():
+        for constraint in csp["constraints"]:
+            # if current variable is a part of the constraint we're looking at
+            if constraint["VAR1"] == var or constraint["VAR2"] == var:
+                # check for violation
+                violated = checkConstraintViolation(constraint, csp["state"])
 
-            if violated:  # if at any point we make a violation, return then that it occurred
-                return violated
+                if violated:  # if at any point we make a violation, return then that it occurred
+                    return violated
     return violated
 
 
-def checkComplete(csp):
+def checkComplete(csp):  # return true if no constraints violated, and all variables assigned
     constraints_violated = checkConstraintViolations(csp)
     unassigned_variable_cnt = len(getUnassignedVariables(csp))
     return ((not constraints_violated) and (unassigned_variable_cnt == 0))
@@ -197,6 +198,7 @@ def outputCurrentBranch(csp, complete):
 
 
 def solveCSP(csp):
+    complete = checkComplete(csp)
     # if assignment is complete: # if no constraints violated, and all
     #     return assignment
 
@@ -231,7 +233,8 @@ DEFAULT_VAR_DOMAINS = csp["variable_domains"]
 # print(isForwardChecking)
 csp["state"]["Z"] = 1
 csp["state"]["X"] = 0
-csp["state"]["Y"] = 0
+# csp["state"]["Y"] = 0
 
 outputCurrentBranch(csp, False)
-print(checkConstraintViolations(csp, "Y"))
+print(f"Violations: {checkConstraintViolations(csp)}")
+print(f"Complete: {checkComplete(csp)}")
