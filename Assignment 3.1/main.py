@@ -4,7 +4,8 @@ import sys
 def negateClause(clause):
     literals = clause.split()  # split at every space, leaving conjunctions and literals
     print(literals)
-    for l in range(len(literals)):  # negate every individual literal, if it has a ~, remove it and if not, add it
+    # negate every individual literal, if it has a ~, remove it and if not, add it
+    for l in range(len(literals)):
         if "~" in literals[l]:
             literals[l] = literals[l].strip("~")
         else:
@@ -17,10 +18,6 @@ def negateClause(clause):
     print(negation)
     return negation
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -31,5 +28,3 @@ if __name__ == '__main__':
     print(KB)
     negation = negateClause(KB[-1])
     # if negation has '&' split and add separately to KB from left to right
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
