@@ -1,5 +1,5 @@
 import sys
-
+addedClauses = []  # ~p q    q ~p  are logically equivalent
 
 def negateClause(clause):
     literals = clause.split()  # split at every space, leaving conjunctions and literals
@@ -11,12 +11,7 @@ def negateClause(clause):
         else:
             literals[l] = "~" + literals[l]
 
-    negation = ""
-    for l in range(len(literals)-1):
-        negation += literals[l] + "&"
-    negation += literals[-1]
-    print(negation)
-    return negation
+    return literals.copy()
 
 
 # Press the green button in the gutter to run the script.
@@ -26,5 +21,22 @@ if __name__ == '__main__':
     for line in KBFile.readlines():
         KB.append(line.strip())
     print(KB)
-    negation = negateClause(KB[-1])
-    # if negation has '&' split and add separately to KB from left to right
+    INITIAL_KB = KB[0:-1]
+    negation = negateClause(KB[-1])  # negation contains array of negated clauses
+#  for every clause in KB after
+
+    # currentClause = resolve(clause) resolves with all previous KB entries
+    # this is where we decide if we add to KB or not
+    removeRepeatedLiterals(currentClause)
+    if isRedundant(currentClause):
+        pass
+    elif isTrue(currentClause):
+        pass
+    else:
+        KB.append(currentClause)
+#  end for
+
+    # check redudndancy
+    # check repeated literals
+    # check if it evaluates to true
+    # if all pass, add to KB
