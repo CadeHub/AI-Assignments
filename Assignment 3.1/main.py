@@ -1,6 +1,12 @@
 import sys
 addedClauses = []  # ~p q    q ~p  are logically equivalent
 
+
+def removeRepeatedLiterals(clause):
+    literals = list(set(clause))  # convert list clause into a set to remove duplicates, reconverted into a list
+    return literals.copy()
+
+
 def negateClause(clause):
     literals = clause.split()  # split at every space, leaving conjunctions and literals
     print(literals)
@@ -27,7 +33,7 @@ if __name__ == '__main__':
 
     # currentClause = resolve(clause) resolves with all previous KB entries
     # this is where we decide if we add to KB or not
-    removeRepeatedLiterals(currentClause)
+    currentClause = removeRepeatedLiterals(currentClause)
     if isRedundant(currentClause):
         pass
     elif isTrue(currentClause):
