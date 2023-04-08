@@ -95,6 +95,7 @@ def format_clause(clause):
         clause_str += literal
         clause_str += " " if cnt > 1 else ""
         cnt -= 1
+    clause_str = set(clause_str.split(" "))
     return clause_str
 
 
@@ -125,15 +126,15 @@ if __name__ == '__main__':
     print(f"KC:{KC}")
 
     i = 0
-    while i < len(KB):
+    while i < len(KC):
         j = 0
         while j < i:
-            applicable, literal = resolutionApplicable(KB[i], KB[j])
+            applicable, literal = resolutionApplicable(KC[i], KC[j])
             if applicable:
-                clause = resolve(KB[i], KB[j], literal)
+                clause = resolve(KC[i], KC[j], literal)
                 clause = removeRepeatedLiterals(clause)
 
-                if isRedundant(clause, KB):
+                if isRedundant(clause, KC):
                     pass
                 elif isTrue(clause):
                     pass
@@ -143,8 +144,8 @@ if __name__ == '__main__':
                         print("Valid")
                         exit()
 
-                    KB.append(format_clause(clause))
-                    output_line(KB, OUTPUT_CNT, i, j, True)
+                    KC.append(format_clause(clause))
+                    output_line(KC, OUTPUT_CNT, i, j, True)
                     OUTPUT_CNT += 1
             j += 1
         i += 1
