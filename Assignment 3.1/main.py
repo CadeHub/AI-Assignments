@@ -16,8 +16,6 @@ def readInKB(OUTPUT_CNT):
 
 
 def add_negation(kb, clause_list, OUTPUT_CNT):
-    kb = kb.copy()
-
     for literal in clause_list:
         if isRedundant(literal, kb):
             pass
@@ -25,29 +23,28 @@ def add_negation(kb, clause_list, OUTPUT_CNT):
             kb.append(literal)
             output_line(kb, OUTPUT_CNT)
             OUTPUT_CNT += 1
-    return kb.copy(), OUTPUT_CNT
+    return kb, OUTPUT_CNT
 
 
 def resolutionApplicable(current_clause, clause_j):
-    for literal in current_clause.split(" "):
-        if literalNegation(literal) in clause_j.split(" "):
+    for literal in current_clause:
+        print(literal)
+        if literalNegation(literal) in clause_j:
             return True, literal
     return False, None
 
 
 def resolve(clause1, clause2, literal):
-    c1 = set(clause1.split(" "))
-    c2 = set(clause2.split(" "))
-    c1.remove(literal)
-    c2.remove(literalNegation(literal))
-    resolvedClause = c1.union(c2)
+    clause1.remove(literal)
+    clause2.remove(literalNegation(literal))
+    resolvedClause = clause1.union(clause2)
     return resolvedClause
 
 
 def removeRepeatedLiterals(clause):
     # convert list clause into a set to remove duplicates, reconverted into a list
     literals = set(clause)
-    return literals.copy()
+    return literals
 
 
 def negateClause(clause):
@@ -60,15 +57,13 @@ def negateClause(clause):
         else:
             literals[l] = "~" + literals[l]
 
-    return literals.copy()
+    return literals
 
 
 def isRedundant(currentClause, KB):
     # loop thru current clauses, and see if any of them match, regardless of order
-    for clause in KB:
-        clause = clause.split(" ")
-        if set(currentClause) == set(clause):
-            return True
+    if currentClause in KB:
+        return True
     return False
 
 
@@ -114,15 +109,25 @@ def output_line(KB, OUTPUT_CNT, i=None, j=None, isNew=False):
 if __name__ == '__main__':
     OUTPUT_CNT = 1
     KB, OUTPUT_CNT = readInKB(OUTPUT_CNT)
+    checkedPairs = []
+    KC = []
 
     # negation contains array of negated clauses
     negation = negateClause(KB[-1])
     KB = KB[0:-1]
     KB, OUTPUT_CNT = add_negation(KB, negation, OUTPUT_CNT)
 
+    # for now
+    for x in range(len(KB)):
+        temp = set(KB[x].split(" "))
+        KC.append(temp)
+
+    print(f"KC:{KC}")
+
     i = 0
     while i < len(KB):
-        for j in range(0, i):
+        j = 0
+        while j < i:
             applicable, literal = resolutionApplicable(KB[i], KB[j])
             if applicable:
                 clause = resolve(KB[i], KB[j], literal)
@@ -141,5 +146,6 @@ if __name__ == '__main__':
                     KB.append(format_clause(clause))
                     output_line(KB, OUTPUT_CNT, i, j, True)
                     OUTPUT_CNT += 1
+            j += 1
         i += 1
 #  end for
