@@ -27,6 +27,11 @@ def removeClausesThatCancel(clause):
                 clause = clause.remove(literal)
     return clause
 
+def resolutionApplicable(current_clause, clause_j):
+    for literal in current_clause:
+        if literalNegation(literal) in clause_j:
+            return True
+    return False
 
 def resolve(clause):
     resolvedClause = removeClausesThatCancel(clause)
@@ -71,6 +76,12 @@ def isTrue(currentClause):
                 return True
     return False
 
+def literalNegation(literal_to_negate):  # return a string representing the negation of a particular literal
+    if "~" in literal_to_negate:
+        new_literal = literal_to_negate[1:]
+    else:
+        new_literal = "~"+literal_to_negate
+    return new_literal
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -80,6 +91,10 @@ if __name__ == '__main__':
     # negation contains array of negated clauses
     negation = negateClause(KB[-1])
     # TODO: add negation to KB?
+    # DO_ONCE
+    # clauses_to_add = negation
+    # for loop through clauses_to_add and check: isTrue, removeRedundantLiterals, and isRedundant
+    # then begin main for loop starting at index len(INITIAL_KB)
 
     ''' Resolution should proceed as follows: 
         
@@ -92,15 +107,27 @@ if __name__ == '__main__':
             2) all possible resolutions have been performed.
     '''
 
-    for i in range(len(KB)):
+    # MAIN_LOOP
+    # main for loop tries to find a j in order 0 to j that can be resolved with i
+    # then, resolve i with all j that can be resolved
+    # resolution should return one of 2: new clause, Fail
+    # seemingly expensive algorithm to find a j that can be resolved:
+    #   1. for all literals in i, see if literalNegation(literal) is in j
+    #   2. if not, resolution cannot be applied
+    #   3. if so, apply resolution and derive either failure or a new clause
+    #   4. if at any point there is a FAILURE, proof by negation has occurred and we can finish
+
+    for i in range(len(INITIAL_KB), len(KB)):
         for j in range(0, i):
             # resolve clause
-            clause = resolve(clause)
-            clause = removeRepeatedLiterals(clause)
-            if isRedundant(clause):
-                pass
-            elif isTrue(clause):
-                pass
-            else:
-                KB.append(clause)
+            if resolutionApplicable(KB[i], KB[j]):
+                clause = resolve(clause)  # resolve should likely have 2 parameters, clause i an clause j
+                # if clause == FAILURE, proof by negation successful, finish
+                clause = removeRepeatedLiterals(clause)
+                if isRedundant(clause):
+                    pass
+                elif isTrue(clause):
+                    pass
+                else:
+                    KB.append(clause)
 #  end for
